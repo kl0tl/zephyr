@@ -249,7 +249,7 @@ getEntryPoints
 getEntryPoints mods = go []
   where
   go acc [] = acc
-  go acc ((EntryPoint i) : eps)  = 
+  go acc ((EntryPoint i) : eps)  =
     if i `fnd` mods
       then go (Right i : acc) eps
       else go (Left (EntryPoint i)  : acc) eps
@@ -322,11 +322,11 @@ dceCommand DCEOptions {..} = do
                   Nothing -> return ()
                   Just fp -> do
                     jsCode <- BSL.Char8.unpack <$> BSL.readFile fp
-                    case JS.parse jsCode fp of
+                    case JS.parseModule jsCode fp of
                       Left _ -> return ()
-                      Right (JS.JSAstProgram ss ann) ->
-                        let ss'    = dceForeignModule moduleForeign ss
-                            jsAst' = JS.JSAstProgram ss' ann
+                      Right (JS.JSAstModule items ann) ->
+                        let items' = dceForeignModule moduleForeign items
+                            jsAst' = JS.JSAstModule items' ann
                             foreignFile
                                   = dceOutputDir </> T.unpack (P.runModuleName moduleName) </> "foreign.js"
                         in
@@ -351,8 +351,8 @@ dceCommand DCEOptions {..} = do
     -- more information than is present in `CoreFn.Module`).
     for_ mods $ \m -> lift $ do
       let mn = P.runModuleName $ CoreFn.moduleName m
-      exts <- BSL.readFile (dceInputDir </> T.unpack mn </> "externs.json")
-      BSL.writeFile (dceOutputDir </> T.unpack mn </> "externs.json") exts
+      exts <- BSL.readFile (dceInputDir </> T.unpack mn </> "externs.cbor")
+      BSL.writeFile (dceOutputDir </> T.unpack mn </> "externs.cbor") exts
     liftIO $ printWarningsAndErrors (P.optionsVerboseErrors dcePureScriptOptions) dceJsonErrors
         (suppressFFIErrors makeWarnings)
         (either (Left . suppressFFIErrors) Right makeErrors)
