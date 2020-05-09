@@ -9,7 +9,7 @@ extra-deps:
 - happy-1.19.9
 - language-javascript-0.7.0.0
 - git: git@github.com:kl0tl/purescript.git
-  commit: 3fdbd6dc4e29c252d693e44657917850b99a815f
+  commit: e5b1798d3d3770bca57d79b0d78f1839332695bf
   subdirs:
     - '.'
     - lib/purescript-ast
